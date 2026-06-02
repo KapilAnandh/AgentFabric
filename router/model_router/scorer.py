@@ -31,6 +31,9 @@ def score_model(model_key: str, task_type: str, available_vram_gb: float) -> flo
     capabilities = model.get("capabilities", [])
     preferred_models = TASK_MODEL_PREFERENCES.get(task_type, set())
 
+    if task_type != "embedding" and "embedding" in capabilities:
+        return 0.0
+
     if task_type == "general":
         capability_score = 1.0
     elif model_key in preferred_models or task_type in capabilities:

@@ -684,9 +684,10 @@
       </div>
       <div class="button-row">
         <button class="btn btn-blue" id="test-model-btn">Test</button>
+        <button class="btn btn-pink" id="view-model-output-btn" style="display:none;">View Output</button>
       </div>
-      <div class="copy-wrap">
-        <button class="copy-btn" id="copy-model-output-btn" style="display:none;">Copy</button>
+      <div class="copy-wrap" id="model-output-container" style="display:none;">
+        <button class="copy-btn" id="copy-model-output-btn">Copy</button>
         <pre class="result-pre" id="model-result">Model response will appear here.</pre>
       </div>
     </section>
@@ -745,6 +746,8 @@
     const viewOutputButton = document.getElementById("view-output-btn");
     const modelResult = document.getElementById("model-result");
     const copyModelOutputButton = document.getElementById("copy-model-output-btn");
+    const viewModelOutputButton = document.getElementById("view-model-output-btn");
+    const modelOutputContainer = document.getElementById("model-output-container");
 
     function showToast(message) {
       const stack = document.getElementById("toast-stack");
@@ -1149,17 +1152,27 @@
 
       modelResult.textContent = "Calling model...";
       copyModelOutputButton.style.display = "none";
+      viewModelOutputButton.style.display = "none";
+      modelOutputContainer.style.display = "none";
       try {
         const result = await fetchJson("/test/model", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ model_name: modelName, prompt })
         });
-        modelResult.textContent = JSON.stringify(result, null, 2);
+        modelResult.textContent = result.response || result.output || JSON.stringify(result, null, 2);
+        viewModelOutputButton.style.display = "inline-flex";
         copyModelOutputButton.style.display = "inline-flex";
       } catch (error) {
         modelResult.textContent = `Model test failed: ${error.message}`;
+        modelOutputContainer.style.display = "block";
       }
+    }
+
+    if (viewModelOutputButton) {
+      viewModelOutputButton.addEventListener("click", () => {
+        modelOutputContainer.style.display = "block";
+      });
     }
 
     viewOutputButton.addEventListener("click", () => {

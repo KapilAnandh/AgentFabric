@@ -18,6 +18,7 @@ class BaseAgent(ABC):
         self.token_manager = token_manager
         self.qdrant_client = QdrantClient()
         self.langfuse_logger = LangfuseLogger()
+        self.tokens_used = 0
 
     @abstractmethod
     async def run(self, task_input: str, context: dict | None = None) -> dict:
@@ -37,6 +38,7 @@ class BaseAgent(ABC):
             content = self._extract_content(response)
             usage = response.get("usage", {}) if isinstance(response, dict) else {}
             total_tokens = int(usage.get("total_tokens", 0) or 0)
+            self.tokens_used += total_tokens
 
             await save_metric(
                 self.model_name,

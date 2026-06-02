@@ -139,16 +139,22 @@ class WorkflowExecutor:
             result_text = str(result_data)
             result_payload = {"result": result_text}
 
+        tokens_used = int(result_payload.get("tokens_used", 0))
+        agent_record.tokens_used += tokens_used
+        await self.lifecycle_manager._save_agent(agent_record)
+
         stored_result = {
             "type": task_type,
             "result": result_text,
             "model": model_name,
             "duration_seconds": duration_seconds,
+            "tokens_used": tokens_used,
         }
         await execute(
-            "UPDATE tasks SET result_json=$1, model_used=$2 WHERE task_id=$3",
+            "UPDATE tasks SET result_json=$1::jsonb, model_used=$2, tokens_used=$3 WHERE task_id=$4",
             json.dumps(stored_result),
             model_name,
+            tokens_used,
             UUID(task["db_task_id"]),
         )
 

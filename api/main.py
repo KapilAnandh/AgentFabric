@@ -8,7 +8,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -62,13 +62,14 @@ def _build_agent_runner(lifecycle_manager: AgentLifecycleManager, resource_manag
             token_manager=resource_manager.token_manager,
         )
         result = await agent.run(task["name"], task)
-        if isinstance(result, dict):
-            return result
-        return {
-            "type": task_type,
-            "result": str(result),
-            "agent_id": agent_id,
-        }
+        if not isinstance(result, dict):
+            result = {
+                "type": task_type,
+                "result": str(result),
+                "agent_id": agent_id,
+            }
+        result["tokens_used"] = getattr(agent, "tokens_used", 0)
+        return result
 
     return _runner
 
@@ -194,7 +195,7 @@ async def run_workflow(request: WorkflowRequest):
         dag = await app.state.planner_agent.plan(request.goal, request.context)
         return await app.state.workflow_executor.execute_workflow(workflow_id, dag)
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Workflow execution failed: {str(exc)}") from exc
+        return JSONResponse(status_code=500, content={"error": f"Workflow execution failed: {str(exc)}", "status": "FAILED"})
 
 
 @app.get("/workflow/{workflow_id}")
