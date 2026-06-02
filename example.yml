@@ -1,0 +1,76 @@
+llm:
+  openwebui_base_url: "http://115.247.148.78:3002"
+  openwebui_api_key: "sk-f9a87e8012ee4d40ba12e21281f41e5d"
+  temperature: 0.3
+  timeout: 60
+  stream: false
+  use_llm_refinement: true
+
+models:
+  medgemma:
+    name: "alibayram/medgemma:4b"
+    vram_gb: 2.5
+    capabilities: ["medical", "general", "qa"]
+    latency_ms: 800
+  medgemma_15:
+    name: "MedAIBase/MedGemma1.5:4b"
+    vram_gb: 7.8
+    capabilities: ["medical", "research", "analysis"]
+    latency_ms: 1200
+  phi3:
+    name: "phi3:medium"
+    vram_gb: 7.9
+    capabilities: ["general", "coding", "reasoning"]
+    latency_ms: 900
+  mistral:
+    name: "mistral:7b-instruct"
+    vram_gb: 4.4
+    capabilities: ["general", "instruction", "qa"]
+    latency_ms: 700
+  gpt_oss:
+    name: "gpt-oss:20b"
+    vram_gb: 13.0
+    capabilities: ["general", "research", "report", "coding"]
+    latency_ms: 1500
+  qwen3_coder:
+    name: "qwen3-coder:30b"
+    vram_gb: 18.0
+    capabilities: ["coding", "architecture", "debugging"]
+    latency_ms: 2000
+  medllama2:
+    name: "medllama2:latest"
+    vram_gb: 3.8
+    capabilities: ["medical", "clinical"]
+    latency_ms: 850
+  qwen25:
+    name: "qwen2.5:14b"
+    vram_gb: 9.0
+    capabilities: ["general", "research", "analysis", "coding"]
+    latency_ms: 1100
+  phi35:
+    name: "rouge/phi-3.5-mini-4k-instruct:latest"
+    vram_gb: 7.6
+    capabilities: ["general", "reasoning", "qa"]
+    latency_ms: 880
+  nomic:
+    name: "nomic-embed-text:latest"
+    vram_gb: 0.3
+    capabilities: ["embedding"]
+    latency_ms: 200
+
+gpu:
+  total_vram_gb: 24
+  reserved_gb: 2
+
+memory:
+  redis_url: "redis://localhost:6379"
+  qdrant_url: "http://localhost:6333"
+  postgres_url: "postgresql://arp_user:arp_pass@localhost:5432/arp_db"
+  token_budget_default: 4000
+  token_budget_max: 16000
+
+observability:
+  prometheus_port: 9090
+  grafana_port: 3001
+  langfuse_url: "http://localhost:3000"
+  otel_endpoint: "http://localhost:4317"
