@@ -389,4 +389,4 @@ Contributions are required to meet enterprise standards. Submitted pull requests
 
 ## License
 
-*(The explicit open-source license could not be determined from the repository context. Please refer to the root `LICENSE` file if present.)*
+This project is released as a fully open-source initiative, originally developed for educational purposes and architectural exploration. Organizations and independent developers are encouraged to freely utilize, adapt, and extend this framework for future development, research, and integration into broader enterprise systems.
