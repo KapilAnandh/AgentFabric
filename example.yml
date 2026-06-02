@@ -1,6 +1,6 @@
 llm:
-  openwebui_base_url: "http://115.247.148.78:3002"
-  openwebui_api_key: "sk-f9a87e8012ee4d40ba12e21281f41e5d"
+  openwebui_base_url: "Your-URL-Here"
+  openwebui_api_key: "API-Key-Here"
   temperature: 0.3
   timeout: 60
   stream: false
