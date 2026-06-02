@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Runtime Platform</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --pink: #ec4899;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --surface: #f8fafc;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --purple: #8b5cf6;
+      --orange: #f97316;
+      --shadow: 0 14px 34px rgba(30, 41, 59, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--pink);
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--blue);
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .clock {
+      min-width: 140px;
+      text-align: right;
+      font-size: 13px;
+      color: var(--muted);
+      padding-top: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .section {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      margin: 0 0 14px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--pink);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .card-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    .card-value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--pink);
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .health-badge,
+    .status-badge,
+    .mini-badge,
+    .task-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 12px;
+    }
+
+    .health-badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--red);
+    }
+
+    .dot.connected {
+      background: var(--green);
+    }
+
+    .dot.disconnected {
+      background: var(--red);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    textarea,
+    input,
+    select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--text);
+      background: #ffffff;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 132px;
+      resize: vertical;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 16px;
+      color: #ffffff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.16s ease, opacity 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(30, 41, 59, 0.12);
+    }
+
+    .btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-pink {
+      background: var(--pink);
+    }
+
+    .btn-blue {
+      background: var(--blue);
+    }
+
+    .btn-surface {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .spinner {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .spinner span {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #ffffff;
+      animation: pulse 1s infinite ease-in-out;
+    }
+
+    .spinner span:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .spinner span:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes pulse {
+      0%, 80%, 100% {
+        opacity: 0.35;
+        transform: scale(0.8);
+      }
+      40% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .progress-status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 20px;
+    }
+
+    .summary-bar {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      display: none;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .summary-bar.visible {
+      display: flex;
+    }
+
+    .status-badge {
+      color: #ffffff;
+    }
+
+    .status-completed {
+      background: var(--green);
+    }
+
+    .status-failed {
+      background: var(--red);
+    }
+
+    .status-running {
+      background: var(--blue);
+    }
+
+    .status-queued {
+      background: var(--amber);
+      color: var(--text);
+    }
+
+    .status-retrying {
+      background: var(--orange);
+    }
+
+    .status-created,
+    .status-default {
+      background: #94a3b8;
+      color: #ffffff;
+    }
+
+    .result-pre {
+      position: relative;
+      white-space: pre-wrap;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--surface);
+      padding: 12px;
+      border-radius: 6px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .inline-result {
+      margin-top: 14px;
+    }
+
+    .output-section {
+      border-left: 4px solid var(--blue);
+      padding-left: 16px;
+    }
+
+    .workflow-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .workflow-toolbar select {
+      flex: 1 1 320px;
+    }
+
+    .workflow-header-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .workflow-header-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .workflow-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .mini-badge {
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .timestamp {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .task-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .task-card.research { border-left-color: var(--blue); }
+    .task-card.coding { border-left-color: var(--pink); }
+    .task-card.report { border-left-color: var(--green); }
+    .task-card.qa { border-left-color: var(--amber); }
+    .task-card.general { border-left-color: var(--purple); }
+    .task-card.medical { border-left-color: var(--red); }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .task-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .task-pill {
+      color: #ffffff;
+      text-transform: uppercase;
+      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .task-pill.research { background: var(--blue); }
+    .task-pill.coding { background: var(--pink); }
+    .task-pill.report { background: var(--green); }
+    .task-pill.qa { background: var(--amber); color: var(--text); }
+    .task-pill.general { background: var(--purple); }
+    .task-pill.medical { background: var(--red); }
+    .task-pill.default { background: #94a3b8; }
+
+    .task-name {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .task-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th,
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      background: var(--surface);
+    }
+
+    .empty-state {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 18px 0 4px;
+    }
+
+    .copy-wrap {
+      position: relative;
+      margin-top: 8px;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 26px;
+    }
+
+    .toast-stack {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 1000;
+      display: grid;
+      gap: 10px;
+      width: min(360px, calc(100vw - 36px));
+    }
+
+    .toast {
+      background: #ffffff;
+      border: 1px solid rgba(239, 68, 68, 0.32);
+      border-left: 4px solid var(--red);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      box-shadow: var(--shadow);
+      font-size: 13px;
+    }
+
+    @media (max-width: 960px) {
+      .cards,
+      .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .header {
+        flex-direction: column;
+      }
+
+      .clock {
+        text-align: left;
+      }
+
+      .cards,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div>
+        <h1 class="title">Agent Runtime Platform</h1>
+        <div class="subtitle">ARP Control Panel</div>
+      </div>
+      <div class="clock" id="live-clock">--:--:--</div>
+    </header>
+
+    <section class="section">
+      <h2 class="section-title">System Status</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="card-label">GPU VRAM</div>
+          <div class="card-value" id="gpu-vram-text">-</div>
+          <div class="progress-track"><div class="progress-fill" id="gpu-vram-fill"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Active Agents</div>
+          <div class="card-value" id="active-agents-text">-</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Queue Size</div>
+          <div class="card-value" id="queue-size-text">-</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Uptime</div>
+          <div class="card-value" id="uptime-text">-</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Health Check</h2>
+      <div class="badge-row">
+        <div class="health-badge"><span class="dot" id="postgres-dot"></span>PostgreSQL</div>
+        <div class="health-badge"><span class="dot" id="redis-dot"></span>Redis</div>
+        <div class="health-badge"><span class="dot" id="openwebui-dot"></span>OpenWebUI</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Run Workflow</h2>
+      <div class="form-grid">
+        <div>
+          <label for="workflow-goal">Goal</label>
+          <textarea id="workflow-goal" placeholder="Build a medical report on diabetes treatment options"></textarea>
+        </div>
+        <div>
+          <label for="workflow-context">Context (JSON)</label>
+          <textarea id="workflow-context" placeholder='{"audience":"clinical team"}'>{}</textarea>
+        </div>
+      </div>
+      <div class="button-row">
+        <button class="btn btn-pink" id="run-workflow-btn">Run Workflow</button>
+        <button class="btn btn-pink" id="view-output-btn" style="display:none;">View Full Output</button>
+      </div>
+      <div class="progress-status" id="workflow-progress-text">No workflow running.</div>
+      <div class="summary-bar" id="workflow-summary-bar">
+        <span class="status-badge status-default" id="workflow-summary-status">IDLE</span>
+        <span class="mini-badge" id="workflow-summary-duration">0.0s</span>
+        <span class="mini-badge" id="workflow-summary-count">0 tasks completed</span>
+      </div>
+      <div class="inline-result result-pre" id="workflow-run-result">Run a workflow to see the immediate response payload.</div>
+    </section>
+
+    <section class="section output-section" id="output-section">
+      <h2 class="section-title">Workflow Output</h2>
+      <div class="workflow-toolbar">
+        <select id="workflow-selector">
+          <option value="">Select a workflow...</option>
+        </select>
+        <button class="btn btn-blue" id="load-workflow-btn">Load</button>
+      </div>
+      <div id="workflow-output-render">
+        <div class="empty-state">No workflow output loaded yet.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Test Model</h2>
+      <div class="form-grid">
+        <div>
+          <label for="model-select">Model</label>
+          <select id="model-select"></select>
+        </div>
+        <div>
+          <label for="model-prompt">Prompt</label>
+          <input id="model-prompt" type="text" placeholder="What is diabetes?">
+        </div>
+      </div>
+      <div class="button-row">
+        <button class="btn btn-blue" id="test-model-btn">Test</button>
+      </div>
+      <div class="copy-wrap">
+        <button class="copy-btn" id="copy-model-output-btn" style="display:none;">Copy</button>
+        <pre class="result-pre" id="model-result">Model response will appear here.</pre>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Active Agents</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Agent ID</th>
+              <th>State</th>
+              <th>Model</th>
+              <th>Task Type</th>
+              <th>Tokens Used</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody id="agents-table-body">
+            <tr><td colspan="6">No agents yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Quick Links</h2>
+      <div class="quick-links">
+        <a class="btn btn-pink" href="/metrics" target="_blank" rel="noreferrer">Metrics</a>
+        <a class="btn btn-blue" href="http://localhost:3001" target="_blank" rel="noreferrer">Grafana</a>
+        <a class="btn btn-pink" href="http://localhost:6333/dashboard" target="_blank" rel="noreferrer">Qdrant</a>
+        <a class="btn btn-blue" href="http://localhost:5432" target="_blank" rel="noreferrer">Postgres Info</a>
+      </div>
+    </section>
+
+    <footer class="footer">ARP v1.0.0 — Powered by local LLMs via OpenWebUI</footer>
+  </div>
+
+  <div class="toast-stack" id="toast-stack"></div>
+
+  <script>
+    const intervals = [];
+    let lastWorkflowResult = null;
+    let currentWorkflowId = null;
+    let workflowPollingInterval = null;
+
+    const workflowSelector = document.getElementById("workflow-selector");
+    const workflowOutputRender = document.getElementById("workflow-output-render");
+    const workflowResultBox = document.getElementById("workflow-run-result");
+    const workflowSummaryBar = document.getElementById("workflow-summary-bar");
+    const workflowSummaryStatus = document.getElementById("workflow-summary-status");
+    const workflowSummaryDuration = document.getElementById("workflow-summary-duration");
+    const workflowSummaryCount = document.getElementById("workflow-summary-count");
+    const workflowProgressText = document.getElementById("workflow-progress-text");
+    const runWorkflowButton = document.getElementById("run-workflow-btn");
+    const viewOutputButton = document.getElementById("view-output-btn");
+    const modelResult = document.getElementById("model-result");
+    const copyModelOutputButton = document.getElementById("copy-model-output-btn");
+
+    function showToast(message) {
+      const stack = document.getElementById("toast-stack");
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.textContent = message;
+      stack.appendChild(toast);
+      window.setTimeout(() => {
+        toast.remove();
+      }, 4000);
+    }
+
+    function truncateId(value, length = 8) {
+      if (!value) {
+        return "-";
+      }
+      return value.length <= length ? value : value.slice(0, length);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatSeconds(seconds) {
+      const numeric = Number(seconds || 0);
+      return `${numeric.toFixed(1)}s`;
+    }
+
+    function formatDateTime(value) {
+      if (!value) {
+        return "-";
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return value;
+      }
+      return date.toLocaleString();
+    }
+
+    function formatUptime(seconds) {
+      const total = Number(seconds || 0);
+      const hours = Math.floor(total / 3600);
+      const minutes = Math.floor((total % 3600) / 60);
+      const secs = Math.floor(total % 60);
+      return `${hours}h ${minutes}m ${secs}s`;
+    }
+
+    function statusClass(status) {
+      const normalized = String(status || "").toUpperCase();
+      if (normalized === "COMPLETED") return "status-completed";
+      if (normalized === "FAILED") return "status-failed";
+      if (normalized === "RUNNING") return "status-running";
+      if (normalized === "QUEUED") return "status-queued";
+      if (normalized === "RETRYING") return "status-retrying";
+      if (normalized === "CREATED") return "status-created";
+      return "status-default";
+    }
+
+    function taskTypeClass(taskType) {
+      const normalized = String(taskType || "").toLowerCase();
+      if (["research", "coding", "report", "qa", "general", "medical"].includes(normalized)) {
+        return normalized;
+      }
+      return "default";
+    }
+
+    function setHealthDot(elementId, connected) {
+      const dot = document.getElementById(elementId);
+      dot.classList.remove("connected", "disconnected");
+      dot.classList.add(connected ? "connected" : "disconnected");
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("live-clock").textContent = now.toLocaleTimeString();
+    }
+
+    async function fetchJson(url, options = {}) {
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          const bodyText = await response.text();
+          throw new Error(bodyText || `${response.status} ${response.statusText}`);
+        }
+        return await response.json();
+      } catch (error) {
+        showToast(`Request failed for ${url}: ${error.message}`);
+        throw error;
+      }
+    }
+
+    async function refreshSystemStatus() {
+      try {
+        const data = await fetchJson("/system/status");
+        const used = Number(data.gpu?.used || 0);
+        const total = Number(data.gpu?.total || 0);
+        const percent = total > 0 ? Math.min(100, (used / total) * 100) : 0;
+        document.getElementById("gpu-vram-text").textContent = `${used.toFixed(1)} / ${total.toFixed(1)} GB`;
+        document.getElementById("gpu-vram-fill").style.width = `${percent}%`;
+        document.getElementById("active-agents-text").textContent = String(data.active_agents_count ?? 0);
+        document.getElementById("queue-size-text").textContent = String(data.queue_size ?? 0);
+        document.getElementById("uptime-text").textContent = formatUptime(data.uptime_seconds || 0);
+      } catch (error) {
+        // toast already shown in fetchJson
+      }
+    }
+
+    async function refreshHealth() {
+      try {
+        const data = await fetchJson("/health");
+        setHealthDot("postgres-dot", !!data.services?.postgres);
+        setHealthDot("redis-dot", !!data.services?.redis);
+        setHealthDot("openwebui-dot", !!data.services?.openwebui);
+      } catch (error) {
+        setHealthDot("postgres-dot", false);
+        setHealthDot("redis-dot", false);
+        setHealthDot("openwebui-dot", false);
+      }
+    }
+
+    function computeAgentDuration(agent) {
+      const startedAt = agent.started_at ? new Date(agent.started_at) : null;
+      const completedAt = agent.completed_at ? new Date(agent.completed_at) : null;
+      if (!startedAt || Number.isNaN(startedAt.getTime())) {
+        return "-";
+      }
+      const end = completedAt && !Number.isNaN(completedAt.getTime()) ? completedAt : new Date();
+      return formatSeconds((end.getTime() - startedAt.getTime()) / 1000);
+    }
+
+    async function refreshAgents() {
+      try {
+        const agents = await fetchJson("/agents");
+        const tbody = document.getElementById("agents-table-body");
+        if (!Array.isArray(agents) || agents.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6">No agents yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = agents.map((agent) => `
+          <tr>
+            <td class="mono">${escapeHtml(truncateId(agent.agent_id))}</td>
+            <td><span class="status-badge ${statusClass(agent.state)}">${escapeHtml(agent.state)}</span></td>
+            <td>${escapeHtml(agent.model_name || "-")}</td>
+            <td>${escapeHtml(agent.task_type || "-")}</td>
+            <td>${escapeHtml(agent.tokens_used ?? 0)}</td>
+            <td>${escapeHtml(computeAgentDuration(agent))}</td>
+          </tr>
+        `).join("");
+      } catch (error) {
+        document.getElementById("agents-table-body").innerHTML = '<tr><td colspan="6">Unable to load agents.</td></tr>';
+      }
+    }
+
+    async function refreshModels() {
+      try {
+        const models = await fetchJson("/models");
+        const select = document.getElementById("model-select");
+        select.innerHTML = models.map((model) => `<option value="${escapeHtml(model.name)}">${escapeHtml(model.name)}</option>`).join("");
+      } catch (error) {
+        document.getElementById("model-select").innerHTML = '<option value="">Unable to load models</option>';
+      }
+    }
+
+    async function refreshWorkflowOptions() {
+      try {
+        const workflows = await fetchJson("/workflows");
+        const currentValue = workflowSelector.value;
+        workflowSelector.innerHTML = '<option value="">Select a workflow...</option>' +
+          workflows.map((workflow) => {
+            const label = `${truncateId(workflow.workflow_id)} | ${workflow.status} | ${formatDateTime(workflow.created_at)}`;
+            return `<option value="${workflow.workflow_id}">${escapeHtml(label)}</option>`;
+          }).join("");
+        if (currentValue) {
+          workflowSelector.value = currentValue;
+        }
+      } catch (error) {
+        // toast already shown
+      }
+    }
+
+    function normalizeWorkflowData(data) {
+      if (!data) {
+        return null;
+      }
+
+      const rawTasks = Array.isArray(data.tasks) ? data.tasks : Array.isArray(data.task_results) ? data.task_results : [];
+      const tasks = rawTasks.map((task, index) => ({
+        task_id: task.task_id || `task-${index + 1}`,
+        name: task.name || `${String(task.type || "task").toUpperCase()} Task`,
+        task_type: task.task_type || task.type || "general",
+        model_used: task.model_used || task.model || "-",
+        status: task.status || (data.status === "FAILED" && task.error ? "FAILED" : "COMPLETED"),
+        started_at: task.started_at || null,
+        completed_at: task.completed_at || null,
+        duration_seconds: Number(task.duration_seconds || 0),
+        result: task.result || ""
+      }));
+
+      return {
+        workflow_id: data.workflow_id || "",
+        name: data.name || "Workflow",
+        status: data.status || "UNKNOWN",
+        created_at: data.created_at || null,
+        completed_at: data.completed_at || null,
+        total_duration_seconds: Number(data.total_duration_seconds || 0),
+        tasks
+      };
+    }
+
+    function renderWorkflowOutput(data) {
+      const normalized = normalizeWorkflowData(data);
+      if (!normalized) {
+        workflowOutputRender.innerHTML = '<div class="empty-state">No workflow data available.</div>';
+        return;
+      }
+
+      const taskCards = normalized.tasks.map((task) => {
+        const taskClass = taskTypeClass(task.task_type);
+        const copyId = `copy-${String(task.task_id).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+        return `
+          <article class="task-card ${taskClass}">
+            <div class="task-header">
+              <div class="task-header-left">
+                <span class="task-pill ${taskClass}">${escapeHtml(task.task_type || "general")}</span>
+                <div class="task-name">${escapeHtml(task.name || "Untitled task")}</div>
+              </div>
+              <div class="task-header-right">
+                <span class="mono">${escapeHtml(task.model_used || "-")}</span>
+                <span class="mini-badge">${escapeHtml(formatSeconds(task.duration_seconds || 0))}</span>
+              </div>
+            </div>
+            <div class="copy-wrap">
+              <button class="copy-btn" data-copy-target="${copyId}">Copy</button>
+              <pre class="result-pre" id="${copyId}">${escapeHtml(task.result || "")}</pre>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      workflowOutputRender.innerHTML = `
+        <div class="workflow-header-box">
+          <div class="workflow-header-top">
+            <div class="workflow-meta">
+              <span class="mono">${escapeHtml(truncateId(normalized.workflow_id, 8))}</span>
+              <span class="status-badge ${statusClass(normalized.status)}">${escapeHtml(normalized.status)}</span>
+              <span class="mini-badge">${escapeHtml(formatSeconds(normalized.total_duration_seconds || 0))}</span>
+              <span class="mini-badge">${escapeHtml(`${normalized.tasks.length} tasks`)}</span>
+            </div>
+          </div>
+          <div class="timestamp">
+            Started: ${escapeHtml(formatDateTime(normalized.created_at))} · Completed: ${escapeHtml(formatDateTime(normalized.completed_at))}
+          </div>
+        </div>
+        <div class="task-list">
+          ${taskCards || '<div class="empty-state">No task outputs found for this workflow.</div>'}
+        </div>
+      `;
+
+      workflowOutputRender.querySelectorAll("[data-copy-target]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const target = document.getElementById(button.dataset.copyTarget);
+          try {
+            await navigator.clipboard.writeText(target?.textContent || "");
+            const originalText = button.textContent;
+            button.textContent = "Copied!";
+            window.setTimeout(() => {
+              button.textContent = originalText;
+            }, 2000);
+          } catch (error) {
+            showToast(`Copy failed: ${error.message}`);
+          }
+        });
+      });
+    }
+
+    function updateWorkflowSummary(result) {
+      workflowSummaryBar.classList.add("visible");
+      workflowSummaryStatus.className = `status-badge ${statusClass(result.status)}`;
+      workflowSummaryStatus.textContent = result.status || "UNKNOWN";
+      workflowSummaryDuration.textContent = formatSeconds(result.total_duration_seconds || 0);
+      workflowSummaryCount.textContent = `${result.tasks_completed || 0} tasks completed`;
+    }
+
+    async function pollWorkflowProgress() {
+      if (!currentWorkflowId) {
+        return;
+      }
+
+      try {
+        const agents = await fetchJson("/agents");
+        const scoped = Array.isArray(agents)
+          ? agents.filter((agent) => agent.workflow_id === currentWorkflowId)
+          : [];
+
+        if (!scoped.length) {
+          workflowProgressText.textContent = "Waiting for workflow agents to appear...";
+          return;
+        }
+
+        const completed = scoped.filter((agent) => agent.state === "COMPLETED").length;
+        const running = scoped.filter((agent) => agent.state === "RUNNING").length;
+        const total = Math.max(scoped.length, completed + running, 1);
+        const currentStep = Math.min(total, Math.max(1, completed + (running > 0 ? 1 : 0)));
+        workflowProgressText.textContent = `Step ${currentStep}/${total} - ${running > 0 ? "task running" : "awaiting next task"}`;
+      } catch (error) {
+        // toast already shown
+      }
+    }
+
+    function stopWorkflowPolling() {
+      if (workflowPollingInterval) {
+        window.clearInterval(workflowPollingInterval);
+        workflowPollingInterval = null;
+      }
+    }
+
+    async function handleRunWorkflow() {
+      let context = {};
+      try {
+        context = JSON.parse(document.getElementById("workflow-context").value || "{}");
+      } catch (error) {
+        showToast("Context JSON is invalid.");
+        return;
+      }
+
+      const goal = document.getElementById("workflow-goal").value.trim();
+      if (!goal) {
+        showToast("Goal is required.");
+        return;
+      }
+
+      runWorkflowButton.disabled = true;
+      runWorkflowButton.innerHTML = 'Running... <span class="spinner"><span></span><span></span><span></span></span>';
+      viewOutputButton.style.display = "none";
+      workflowResultBox.textContent = "Workflow request submitted...";
+      workflowSummaryBar.classList.remove("visible");
+      workflowProgressText.textContent = "Preparing workflow...";
+      currentWorkflowId = null;
+      stopWorkflowPolling();
+
+      workflowPollingInterval = window.setInterval(() => {
+        pollWorkflowProgress();
+      }, 2000);
+
+      try {
+        const result = await fetchJson("/workflow", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ goal, context })
+        });
+
+        lastWorkflowResult = result;
+        currentWorkflowId = result.workflow_id;
+        workflowResultBox.textContent = JSON.stringify(result, null, 2);
+        updateWorkflowSummary(result);
+        workflowProgressText.textContent = `Workflow ${result.status}.`;
+        viewOutputButton.style.display = "inline-flex";
+
+        await refreshWorkflowOptions();
+        if (result.workflow_id) {
+          workflowSelector.value = result.workflow_id;
+        }
+        await refreshAgents();
+        await refreshSystemStatus();
+      } catch (error) {
+        workflowResultBox.textContent = `Workflow failed: ${error.message}`;
+        workflowProgressText.textContent = "Workflow failed.";
+      } finally {
+        runWorkflowButton.disabled = false;
+        runWorkflowButton.textContent = "Run Workflow";
+        stopWorkflowPolling();
+      }
+    }
+
+    async function loadWorkflowById(workflowId) {
+      if (!workflowId) {
+        showToast("Select a workflow first.");
+        return;
+      }
+
+      try {
+        const workflow = await fetchJson(`/workflow/${workflowId}`);
+        renderWorkflowOutput(workflow);
+      } catch (error) {
+        // toast already shown
+      }
+    }
+
+    async function handleTestModel() {
+      const modelName = document.getElementById("model-select").value;
+      const prompt = document.getElementById("model-prompt").value.trim();
+      if (!modelName || !prompt) {
+        showToast("Model and prompt are required.");
+        return;
+      }
+
+      modelResult.textContent = "Calling model...";
+      copyModelOutputButton.style.display = "none";
+      try {
+        const result = await fetchJson("/test/model", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model_name: modelName, prompt })
+        });
+        modelResult.textContent = JSON.stringify(result, null, 2);
+        copyModelOutputButton.style.display = "inline-flex";
+      } catch (error) {
+        modelResult.textContent = `Model test failed: ${error.message}`;
+      }
+    }
+
+    viewOutputButton.addEventListener("click", () => {
+      if (!lastWorkflowResult) {
+        showToast("No workflow result is available yet.");
+        return;
+      }
+      document.getElementById("output-section").scrollIntoView({ behavior: "smooth" });
+      renderWorkflowOutput(lastWorkflowResult);
+      if (lastWorkflowResult.workflow_id) {
+        workflowSelector.value = lastWorkflowResult.workflow_id;
+      }
+    });
+
+    document.getElementById("run-workflow-btn").addEventListener("click", handleRunWorkflow);
+    document.getElementById("load-workflow-btn").addEventListener("click", async () => {
+      await loadWorkflowById(workflowSelector.value);
+    });
+    document.getElementById("test-model-btn").addEventListener("click", handleTestModel);
+    copyModelOutputButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(modelResult.textContent || "");
+        copyModelOutputButton.textContent = "Copied!";
+        window.setTimeout(() => {
+          copyModelOutputButton.textContent = "Copy";
+        }, 2000);
+      } catch (error) {
+        showToast(`Copy failed: ${error.message}`);
+      }
+    });
+
+    async function initialize() {
+      updateClock();
+      intervals.push(window.setInterval(updateClock, 1000));
+
+      await Promise.all([
+        refreshSystemStatus(),
+        refreshHealth(),
+        refreshAgents(),
+        refreshModels(),
+        refreshWorkflowOptions()
+      ]);
+
+      intervals.push(window.setInterval(refreshSystemStatus, 5000));
+      intervals.push(window.setInterval(refreshHealth, 10000));
+      intervals.push(window.setInterval(refreshAgents, 8000));
+      intervals.push(window.setInterval(refreshWorkflowOptions, 15000));
+    }
+
+    window.addEventListener("beforeunload", () => {
+      intervals.forEach((intervalId) => window.clearInterval(intervalId));
+      stopWorkflowPolling();
+    });
+
+    initialize();
+  </script>
+</body>
+</html>
